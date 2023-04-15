@@ -1,0 +1,14 @@
+{
+    "row_first": 2,
+    "col_name": 1,
+    "col_unit": 4,
+    "col_date": 2,
+    "col_time": 3,
+    "col_status": 5,
+    "col_turnstyle": 6,
+    "col_direction": 7,
+    "col_area": 9,
+    "status_success_prefix": "ПРОХОД",
+    "direction_plus_prefix": ["ВХОД", "ВЪЕЗД"],
+    "direction_minus_prefix": ["ВЫХОД", "ВЫЕЗД"]
+}
