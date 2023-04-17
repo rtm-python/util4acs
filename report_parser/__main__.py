@@ -6,7 +6,6 @@ Example:
 """
 
 import json
-import csv
 from datetime import date
 from pathlib import Path
 from typing import List, Dict
@@ -16,6 +15,7 @@ from report_parser import EmployeeAccess
 from report_parser.xlsx_parser import XLSXParser
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
+from openpyxl.styles import PatternFill
 
 with open("report_parser/xlsx_parser.json", "r") as file:
     xlsx_config = json.load(file)
@@ -105,6 +105,7 @@ def main(report_filepaths: List[str]) -> None:
         for e_date, row in date_row.items():
             ws.cell(row=row, column=1, value=e_date)
             ws.cell(row=row, column=1).number_format = "dd.mm.yyyy"
+            ws.cell(row=row, column=1).fill = PatternFill("solid", fgColor="ffffcc00")
     # Fill unit worksheets with employee access data
     for employee_access in employee_access_list:
         ws = unit_ws[employee_access.unit]
@@ -114,10 +115,16 @@ def main(report_filepaths: List[str]) -> None:
             column=employee_column,
             value=employee_access.name,
         )
+        ws.cell(row=1, column=employee_column).fill = PatternFill(
+            "solid", fgColor="ffa4ffa4"
+        )
         ws.cell(
             row=2,
             column=employee_column,
             value=employee_access.id_card,
+        )
+        ws.cell(row=2, column=employee_column).fill = PatternFill(
+            "solid", fgColor="ffa4ffa4"
         )
         for access_data in employee_access.access_data_list:
             if access_data.exit_out is None:
@@ -154,12 +161,18 @@ def main(report_filepaths: List[str]) -> None:
                 column=total_column,
                 value=f"=SUM({get_column_letter(2)}{row}:{get_column_letter(total_column - 1)}{row})",
             )
+            ws.cell(row=row, column=total_column).fill = PatternFill(
+                "solid", fgColor="00C0C0C0"
+            )
         total_column += 1
         for column in range(2, total_column):
             ws.cell(
                 row=total_row,
                 column=column,
                 value=f"=SUM({get_column_letter(column)}{3}:{get_column_letter(column)}{total_row - 1})",
+            )
+            ws.cell(row=total_row, column=column).fill = PatternFill(
+                "solid", fgColor="00C0C0C0"
             )
         ws.freeze_panes = "B3"
     wb.save("result.xlsx")
