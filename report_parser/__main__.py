@@ -128,6 +128,9 @@ def main(report_filepaths: List[str]) -> None:
         )
         for access_data in employee_access.access_data_list:
             if access_data.exit_out is None:
+                logger.error(
+                    f"No exit for enter event: {employee_access.name}, {employee_access.unit}, {access_data.enter_in}, {access_data.enter_in_turnstyle}, {access_data.restricted_area}"
+                )
                 continue
             e_date = date(
                 access_data.exit_out.year,
@@ -153,7 +156,21 @@ def main(report_filepaths: List[str]) -> None:
     for ws in wb.worksheets:
         total_row = ws.max_row + 1
         total_column = ws.max_column + 1
-        if total_row <= 1 or total_column <= 1:
+        if total_row <= 2 or total_column <= 2:
+            ws.cell(row=1, column=1, value="total_seconds")
+            ws.cell(row=3, column=1, value="hours")
+            ws.cell(row=4, column=1, value="minutes")
+            ws.cell(row=5, column=1, value="seconds")
+            ws.cell(row=7, column=1, value="[HH]:MM:SS")
+            ws.cell(row=1, column=2, value=123456)
+            ws.cell(row=3, column=2, value="=INT(B1/60/60)")
+            ws.cell(row=4, column=2, value="=INT((B1-B3*60*60)/60)")
+            ws.cell(row=5, column=2, value="=B1-B3*60*60-B4*60")
+            ws.cell(
+                row=7,
+                column=2,
+                value='=TEXT(B3,"00")&":"&TEXT(B4,"00")&":"&TEXT(B5,"00")',
+            )
             continue
         for row in range(3, total_row):
             ws.cell(
