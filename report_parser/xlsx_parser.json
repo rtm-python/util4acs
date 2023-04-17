@@ -7,6 +7,7 @@
     "col_status": 5,
     "col_turnstyle": 6,
     "col_direction": 7,
+    "col_id_card": 8,
     "col_area": 9,
     "status_success_prefix": "ПРОХОД",
     "direction_plus_prefix": ["ВХОД", "ВЪЕЗД"],

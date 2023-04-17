@@ -36,7 +36,16 @@ def parse(path: Path) -> List[EmployeeAccess]:
     parser = parsers.get(path.suffix)
     if parser is None:
         return
-    return parser.parse(path.resolve())
+    result = parser.parse(path.resolve())
+    units = []
+    for item in result:
+        unit = item.unit
+        if unit in units:
+            continue
+        units.append(unit)
+    if len(units) > 0:
+        logger.error(f"More than one unit in report ({path}) detected: {units}")
+    return result
 
 
 def main(report_filepaths: List[str]) -> None:
@@ -87,7 +96,7 @@ def main(report_filepaths: List[str]) -> None:
                 continue
             dates.append(e_date)
     date_row = {}
-    for row, e_date in enumerate(sorted(dates), 2):
+    for row, e_date in enumerate(sorted(dates), 3):
         date_row[e_date] = row
     unit_ws = {}
     for unit in units:
@@ -105,6 +114,11 @@ def main(report_filepaths: List[str]) -> None:
             column=employee_column,
             value=employee_access.name,
         )
+        ws.cell(
+            row=2,
+            column=employee_column,
+            value=employee_access.id_card,
+        )
         for access_data in employee_access.access_data_list:
             if access_data.exit_out is None:
                 continue
@@ -120,19 +134,21 @@ def main(report_filepaths: List[str]) -> None:
                 ws.cell(
                     row=row,
                     column=employee_column,
-                    value=f"={access_seconds / 60 / 60}",
+                    value=f"={access_seconds}",
                 )
             else:
                 ws.cell(
                     row=row,
                     column=employee_column,
-                    value=f"{value}+{access_seconds / 60 / 60}",
+                    value=f"{value}+{access_seconds}",
                 )
     # Add SUM values to total cells
     for ws in wb.worksheets:
         total_row = ws.max_row + 1
         total_column = ws.max_column + 1
-        for row in range(2, total_row):
+        if total_row <= 1 or total_column <= 1:
+            continue
+        for row in range(3, total_row):
             ws.cell(
                 row=row,
                 column=total_column,
@@ -143,8 +159,9 @@ def main(report_filepaths: List[str]) -> None:
             ws.cell(
                 row=total_row,
                 column=column,
-                value=f"=SUM({get_column_letter(column)}{2}:{get_column_letter(column)}{total_row - 1})",
+                value=f"=SUM({get_column_letter(column)}{3}:{get_column_letter(column)}{total_row - 1})",
             )
+        ws.freeze_panes = "B3"
     wb.save("result.xlsx")
     wb.close()
 

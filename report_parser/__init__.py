@@ -29,6 +29,7 @@ class AccessData:
 class EmployeeAccess:
     name: str
     unit: str
+    id_card: str
     access_data_list: List[AccessData]
 
 
@@ -37,4 +38,4 @@ class Parser(ABC):
     config: dict
 
     def parse(self, filename: str) -> List[EmployeeAccess]:
-        pass
+        ...

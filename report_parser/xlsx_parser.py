@@ -60,6 +60,7 @@ class XLSXParser(Parser):
                     e_status,
                     e_turnstyle,
                     e_direction,
+                    id_card,
                     e_area,
                 ) = (
                     values[self.config["col_name"]],
@@ -69,16 +70,21 @@ class XLSXParser(Parser):
                     values[self.config["col_status"]],
                     values[self.config["col_turnstyle"]],
                     values[self.config["col_direction"]],
+                    values[self.config["col_id_card"]],
                     values[self.config["col_area"]],
                 )
                 # Add new employee access or find earlier added
                 employee_access = None
                 for item in result:
-                    if item.name == name and item.unit == unit:
+                    if (
+                        item.name == name
+                        and item.unit == unit
+                        and item.id_card == id_card
+                    ):
                         employee_access = item
                         break
                 if employee_access is None:
-                    employee_access = EmployeeAccess(name, unit, [])
+                    employee_access = EmployeeAccess(name, unit, id_card, [])
                     result += [employee_access]
                 # Parse date and time from string if needed
                 if not isinstance(e_date, date):
@@ -122,6 +128,9 @@ class XLSXParser(Parser):
                         access_data.exit_out is not None
                         or access_data.exit_out_turnstyle is not None
                     ):
+                        logger.error(
+                            f"Exit out before enter in: {name}, {unit}, {e_direction}, {e_datetime}, {e_turnstyle}"
+                        )
                         continue
                     access_data.exit_out = e_datetime
                     access_data.exit_out_turnstyle = e_turnstyle
