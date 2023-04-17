@@ -43,7 +43,7 @@ def parse(path: Path) -> List[EmployeeAccess]:
         if unit in units:
             continue
         units.append(unit)
-    if len(units) > 0:
+    if len(units) > 1:
         logger.error(f"More than one unit in report ({path}) detected: {units}")
     return result
 
